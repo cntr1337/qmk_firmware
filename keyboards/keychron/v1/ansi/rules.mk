@@ -1,15 +1,18 @@
-# Optymalizacja (naprawia bledy dziwnego zachowania)
-LTO_ENABLE = yes
+# --- USTAWIENIA FABRYCZNE (TO NAPRAWI KLAWIATURE) ---
+MCU = STM32L432
+BOOTLOADER = stm32-dfu
 
-# Wlaczenie obslugi VIA (zeby program VIA widzial klawiature)
+# Wlaczenie przelacznika trybow (NAPRAWIA BLAD "QWERT")
+DIP_SWITCH_ENABLE = yes
+
+# Wlaczenie obslugi VIA
 VIA_ENABLE = yes
 
-# Wlaczenie myszki (Nasz glowny cel)
+# --- TWOJE DODATKI ---
+# Wlaczenie myszki
 MOUSEKEY_ENABLE = yes
 EXTRAKEY_ENABLE = yes
 
-# Wlaczenie przelacznika Mac/Windows (BEZ TEGO KLAWIATURA WARIUJE I PISZE QWERT)
-DIP_SWITCH_ENABLE = yes
-
-# Wlaczenie pelnego N-Key Rollover (zeby mozna bylo wciskac duzo klawiszy naraz)
+# Optymalizacje
+LTO_ENABLE = yes
 NKRO_ENABLE = yes
