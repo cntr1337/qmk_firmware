@@ -8,6 +8,13 @@
 
 #include QMK_KEYBOARD_H
 
+/* --- FIX NAPRAWIAJACY BLAD KOMPILACJI --- */
+/* Czasami kompilator gubi definicje myszki. Definiujemy je recznie. */
+#ifndef KC_MS_BTN1
+#define KC_MS_BTN1 0x00F9
+#endif
+/* ---------------------------------------- */
+
 // clang-format off
 
 enum layers{
@@ -80,9 +87,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (mouse_mode_active) {
                 if (record->event.pressed) {
                     tap_code(KC_F);             // Kliknij F
-                    register_code(KC_MS_BTN1);  // <--- POWROT DO KC_MS_BTN1
+                    register_code(KC_MS_BTN1);  // Teraz kompilator na 100% wie co to jest
                 } else {
-                    unregister_code(KC_MS_BTN1); // <--- POWROT DO KC_MS_BTN1
+                    unregister_code(KC_MS_BTN1); // Teraz kompilator na 100% wie co to jest
                 }
                 return false;
             }
