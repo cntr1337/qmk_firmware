@@ -8,25 +8,27 @@
 
 #include QMK_KEYBOARD_H
 
-/* FIX MYSZKI - Definicja bezpiecznik */
+/* FIX MYSZKI */
 #ifndef KC_MS_BTN1
 #define KC_MS_BTN1 0x00F9
 #endif
 
-/* DEFINICJE SKROTOW (Zeby nie bylo bledow kompilacji) */
+/* FIX DEFINICJI (zeby kompilator nie krzyczal) */
 #define KC_TASK LGUI(KC_TAB)
 #define KC_FLXP LGUI(KC_E)
 
-// clang-format off
-
-enum layers{
+enum layers {
     MAC_BASE,
     MAC_FN,
     WIN_BASE,
     WIN_FN
 };
 
-// Zmienna stanu trybu myszki
+// Definiujemy nasz wlasny przycisk
+enum custom_keycodes {
+    TOGGLE_MOUSE = SAFE_RANGE,
+};
+
 static bool mouse_mode_active = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -37,7 +39,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
-        KC_LCTL,  KC_LOPT,  KC_LCMD,                                            KC_SPC,                                 KC_RCMD,  MO(MAC_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
+        KC_LCTL,  KC_LOPT,  KC_LCMD,                                            KC_SPC,                                 KC_RCMD,  MO(MAC_FN), TOGGLE_MOUSE, KC_LEFT,  KC_DOWN,  KC_RGHT),
+        /* ^^^ PATRZ TUTAJ: Zamiast KC_RCTL wpisalem TOGGLE_MOUSE ^^^ */
 
     /* MAC_FN */
     [MAC_FN] = LAYOUT_ansi_82(
@@ -55,7 +58,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
-        KC_LCTL,  KC_LWIN,  KC_LALT,                                            KC_SPC,                                 KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
+        KC_LCTL,  KC_LWIN,  KC_LALT,                                            KC_SPC,                                 KC_RALT,  MO(WIN_FN), TOGGLE_MOUSE, KC_LEFT,  KC_DOWN,  KC_RGHT),
+        /* ^^^ PATRZ TUTAJ: Zamiast KC_RCTL wpisalem TOGGLE_MOUSE ^^^ */
 
     /* WIN_FN */
     [WIN_FN] = LAYOUT_ansi_82(
@@ -69,30 +73,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        // 1. Wlaczanie: Prawy Ctrl + Plus (KC_EQL)
-        case KC_EQL:
+        // --- 1. Obsluga Prawego Ctrl (Jako wylacznik) ---
+        case TOGGLE_MOUSE:
             if (record->event.pressed) {
-                // Sprawdzamy czy trzymasz Prawy Ctrl
-                if (get_mods() & MOD_BIT(KC_RCTL)) {
-                    mouse_mode_active = !mouse_mode_active; // Zmien stan
-                    
-                    // Mignij CapsLockiem x2 (sygnalizacja)
-                    tap_code(KC_CAPS);
-                    tap_code(KC_CAPS);
-                    
-                    return false; // Nie wpisuj znaku "="
-                }
+                mouse_mode_active = !mouse_mode_active; // Przelacz tryb
+                
+                // Mignij CapsLockiem (sygnalizacja)
+                tap_code(KC_CAPS);
+                tap_code(KC_CAPS);
             }
-            return true;
+            return false; // Zastepujemy oryginalny przycisk
 
-        // 2. Klawisz F (dziala jak mysz tylko w trybie aktywnym)
+        // --- 2. Obsluga Klawisza F ---
         case KC_F:
             if (mouse_mode_active) {
                 if (record->event.pressed) {
-                    tap_code(KC_F);             // Kliknij klawisz F
-                    register_code(KC_MS_BTN1);  // Trzymaj lewy przycisk myszy
+                    tap_code(KC_F);            // Kliknij F
+                    register_code(KC_MS_BTN1); // Trzymaj Mysz
                 } else {
-                    unregister_code(KC_MS_BTN1); // Pusc mysz
+                    unregister_code(KC_MS_BTN1); // Pusc Mysz
                 }
                 return false;
             }
