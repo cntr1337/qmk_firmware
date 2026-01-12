@@ -8,7 +8,7 @@
 
 #include QMK_KEYBOARD_H
 
-/* FIX MYSZKI - Definicja na sztywno */
+/* FIX MYSZKI - Definicja na sztywno (bezpiecznik) */
 #ifndef KC_MS_BTN1
 #define KC_MS_BTN1 0x00F9
 #endif
@@ -22,9 +22,6 @@ enum layers{
     WIN_FN
 };
 
-#define KC_TASK LGUI(KC_TAB)
-#define KC_FLXP LGUI(KC_E)
-
 static bool mouse_mode_active = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -32,7 +29,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_BASE] = LAYOUT_ansi_82(
         KC_ESC,   KC_BRID,  KC_BRIU,  KC_NO,    KC_NO,    RM_VALD,  RM_VALU,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,    KC_VOLU,  KC_DEL,             KC_INS,
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
-        KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_MS_BTN1, /* Test: PGDN to Mysz */
+        KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
         KC_LCTL,  KC_LOPT,  KC_LCMD,                                            KC_SPC,                                 KC_RCMD,  MO(MAC_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
@@ -50,7 +47,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [WIN_BASE] = LAYOUT_ansi_82(
         KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,     KC_F12,   KC_DEL,             KC_INS,
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
-        KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_MS_BTN1, /* Test: PGDN to Mysz */
+        KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
         KC_LCTL,  KC_LWIN,  KC_LALT,                                            KC_SPC,                                 KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
@@ -67,26 +64,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        // 1. Logika: Prawy Ctrl + Plus (KC_EQL)
-        case KC_EQL: // To jest klawisz z Plusem i Równa Się
+        // 1. Logika włączania: Prawy Ctrl + Plus (KC_EQL)
+        case KC_EQL:
             if (record->event.pressed) {
-                // Sprawdzamy, czy PRAWY CTRL jest wcisniety
+                // Sprawdzamy czy wcisniety jest PRAWY CTRL
                 if (get_mods() & MOD_BIT(KC_RCTL)) {
-                    // Jesli tak - przelaczamy tryb
-                    mouse_mode_active = !mouse_mode_active;
-                    return false; // Nie wpisujemy znaku "=" ani "+", tylko przelaczamy
+                    mouse_mode_active = !mouse_mode_active; // Przelacz tryb
+                    
+                    // Mignij CapsLockiem zeby dac znac ze dziala
+                    tap_code(KC_CAPS);
+                    tap_code(KC_CAPS);
+                    
+                    return false; // Nie wpisuj znaku "="
                 }
             }
-            return true; // Jesli Ctrl nie jest wcisniety, dziala normalnie
+            return true; // Jesli sam Plus (bez Ctrl) -> pisz "+"
 
         // 2. Obsluga klawisza F
         case KC_F:
             if (mouse_mode_active) {
                 if (record->event.pressed) {
-                    tap_code(KC_F);
-                    register_code(KC_MS_BTN1);
+                    tap_code(KC_F);             // Kliknij "f"
+                    register_code(KC_MS_BTN1);  // Trzymaj Mysz
                 } else {
-                    unregister_code(KC_MS_BTN1);
+                    unregister_code(KC_MS_BTN1); // Pusc Mysz
                 }
                 return false;
             }
