@@ -1,0 +1,35 @@
+name: Build Firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      keyboard:
+        description: 'Model klawiatury (sciezka, np. keychron/v1/ansi)'
+        required: true
+        default: 'keychron/v1/ansi'
+      keymap:
+        description: 'Mapa (np. via lub default)'
+        required: true
+        default: 'via'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Compile
+      run: qmk compile -kb ${{ github.event.inputs.keyboard }} -km ${{ github.event.inputs.keymap }}
+
+    - name: Archive Firmware
+      uses: actions/upload-artifact@v3
+      with:
+        name: firmware
+        path: |
+          *.bin
+          *.hex
+          *.uf2
