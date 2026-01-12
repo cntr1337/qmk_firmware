@@ -8,9 +8,9 @@ on:
         required: true
         default: 'keychron/v1/ansi'
       keymap:
-        description: 'Mapa (np. via lub default)'
+        description: 'Mapa (folder, np. default)'
         required: true
-        default: 'via'
+        default: 'default'
 
 jobs:
   build:
@@ -21,6 +21,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0  # <--- TO NAPRAWIA BLAD "error code 128"
 
     - name: Compile
       run: qmk compile -kb ${{ github.event.inputs.keyboard }} -km ${{ github.event.inputs.keymap }}
