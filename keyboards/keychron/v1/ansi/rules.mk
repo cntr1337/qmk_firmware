@@ -1,5 +1,9 @@
-# custom matrix setup
-CUSTOM_MATRIX = lite
+MCU = STM32L432
+BOOTLOADER = stm32-dfu
 
-SRC += matrix.c
+# Wlaczenie funkcji myszki
 MOUSEKEY_ENABLE = yes
+EXTRAKEY_ENABLE = yes
+
+# Opcjonalnie wlaczenie VIA
+VIA_ENABLE = yes
