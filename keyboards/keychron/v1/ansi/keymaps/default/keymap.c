@@ -8,10 +8,15 @@
 
 #include QMK_KEYBOARD_H
 
-/* FIX MYSZKI - Definicja na sztywno (bezpiecznik) */
+/* FIX MYSZKI - Definicja na sztywno */
 #ifndef KC_MS_BTN1
 #define KC_MS_BTN1 0x00F9
 #endif
+
+// --- BRAKUJACE DEFINICJE (TO NAPRAWIA BLAD) ---
+#define KC_TASK LGUI(KC_TAB)
+#define KC_FLXP LGUI(KC_E)
+// ----------------------------------------------
 
 // clang-format off
 
