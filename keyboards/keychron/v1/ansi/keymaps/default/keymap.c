@@ -8,15 +8,14 @@
 
 #include QMK_KEYBOARD_H
 
-/* FIX MYSZKI - Definicja na sztywno */
+/* FIX MYSZKI - Definicja bezpiecznik */
 #ifndef KC_MS_BTN1
 #define KC_MS_BTN1 0x00F9
 #endif
 
-// --- BRAKUJACE DEFINICJE (TO NAPRAWIA BLAD) ---
+/* DEFINICJE SKROTOW (Zeby nie bylo bledow kompilacji) */
 #define KC_TASK LGUI(KC_TAB)
 #define KC_FLXP LGUI(KC_E)
-// ----------------------------------------------
 
 // clang-format off
 
@@ -27,6 +26,7 @@ enum layers{
     WIN_FN
 };
 
+// Zmienna stanu trybu myszki
 static bool mouse_mode_active = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -69,30 +69,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        // 1. Logika włączania: Prawy Ctrl + Plus (KC_EQL)
+        // 1. Wlaczanie: Prawy Ctrl + Plus (KC_EQL)
         case KC_EQL:
             if (record->event.pressed) {
-                // Sprawdzamy czy wcisniety jest PRAWY CTRL
+                // Sprawdzamy czy trzymasz Prawy Ctrl
                 if (get_mods() & MOD_BIT(KC_RCTL)) {
-                    mouse_mode_active = !mouse_mode_active; // Przelacz tryb
+                    mouse_mode_active = !mouse_mode_active; // Zmien stan
                     
-                    // Mignij CapsLockiem zeby dac znac ze dziala
+                    // Mignij CapsLockiem x2 (sygnalizacja)
                     tap_code(KC_CAPS);
                     tap_code(KC_CAPS);
                     
                     return false; // Nie wpisuj znaku "="
                 }
             }
-            return true; // Jesli sam Plus (bez Ctrl) -> pisz "+"
+            return true;
 
-        // 2. Obsluga klawisza F
+        // 2. Klawisz F (dziala jak mysz tylko w trybie aktywnym)
         case KC_F:
             if (mouse_mode_active) {
                 if (record->event.pressed) {
-                    tap_code(KC_F);             // Kliknij "f"
-                    register_code(KC_MS_BTN1);  // Trzymaj Mysz
+                    tap_code(KC_F);             // Kliknij klawisz F
+                    register_code(KC_MS_BTN1);  // Trzymaj lewy przycisk myszy
                 } else {
-                    unregister_code(KC_MS_BTN1); // Pusc Mysz
+                    unregister_code(KC_MS_BTN1); // Pusc mysz
                 }
                 return false;
             }
