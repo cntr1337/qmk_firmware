@@ -13,7 +13,7 @@
 #define KC_MS_BTN1 0x00F9
 #endif
 
-/* FIX DEFINICJI (zeby kompilator nie krzyczal) */
+/* FIX DEFINICJI (naprawia bledy kompilacji) */
 #define KC_TASK LGUI(KC_TAB)
 #define KC_FLXP LGUI(KC_E)
 
@@ -24,7 +24,7 @@ enum layers {
     WIN_FN
 };
 
-// Definiujemy nasz wlasny przycisk
+// Definicja naszego wlacznika
 enum custom_keycodes {
     TOGGLE_MOUSE = SAFE_RANGE,
 };
@@ -40,7 +40,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
         KC_LCTL,  KC_LOPT,  KC_LCMD,                                            KC_SPC,                                 KC_RCMD,  MO(MAC_FN), TOGGLE_MOUSE, KC_LEFT,  KC_DOWN,  KC_RGHT),
-        /* ^^^ PATRZ TUTAJ: Zamiast KC_RCTL wpisalem TOGGLE_MOUSE ^^^ */
 
     /* MAC_FN */
     [MAC_FN] = LAYOUT_ansi_82(
@@ -59,7 +58,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
         KC_LCTL,  KC_LWIN,  KC_LALT,                                            KC_SPC,                                 KC_RALT,  MO(WIN_FN), TOGGLE_MOUSE, KC_LEFT,  KC_DOWN,  KC_RGHT),
-        /* ^^^ PATRZ TUTAJ: Zamiast KC_RCTL wpisalem TOGGLE_MOUSE ^^^ */
 
     /* WIN_FN */
     [WIN_FN] = LAYOUT_ansi_82(
@@ -82,7 +80,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code(KC_CAPS);
                 tap_code(KC_CAPS);
             }
-            return false; // Zastepujemy oryginalny przycisk
+            return false;
 
         // --- 2. Obsluga Klawisza F ---
         case KC_F:
