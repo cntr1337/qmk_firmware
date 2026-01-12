@@ -17,7 +17,7 @@ enum layers{
     WIN_FN
 };
 
-// Definiujemy wlasny kod przelacznika
+// Definiujemy wlasny kod przycisku do wlaczania trybu
 enum custom_keycodes {
     TOGGLE_MOUSE = SAFE_RANGE,
 };
@@ -25,11 +25,11 @@ enum custom_keycodes {
 #define KC_TASK LGUI(KC_TAB)
 #define KC_FLXP LGUI(KC_E)
 
-// Zmienna pamietajaca stan (false = wylaczony, true = wlaczony)
+// Zmienna przechowujaca stan (false = wylaczony, true = wlaczony)
 static bool mouse_mode_active = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    /* MAC_BASE: F dziala normalnie */
+    /* MAC_BASE: Tutaj F dziala normalnie */
     [MAC_BASE] = LAYOUT_ansi_82(
         KC_ESC,   KC_BRID,  KC_BRIU,  KC_NO,    KC_NO,    RM_VALD,  RM_VALU,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,    KC_VOLU,  KC_DEL,             KC_INS,
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
@@ -38,7 +38,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
         KC_LCTL,  KC_LOPT,  KC_LCMD,                                            KC_SPC,                                 KC_RCMD,  MO(MAC_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
-    /* MAC_FN: Prawy srodkowy przycisk to TOGGLE_MOUSE */
+    /* MAC_FN: Prawy srodkowy przycisk (Home) to teraz TOGGLE_MOUSE */
     [MAC_FN] = LAYOUT_ansi_82(
         _______,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,     KC_F12,   _______,            _______,
         _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
@@ -47,7 +47,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,            _______,  _______,  _______,  _______,  _______,  NK_TOGG,  _______,  _______,  _______,  _______,              _______,  _______,
         _______,  _______,  _______,                                            _______,                                _______,  _______,    _______,  _______,  _______,  _______),
 
-    /* WIN_BASE: F dziala normalnie */
+    /* WIN_BASE: Tutaj F dziala normalnie */
     [WIN_BASE] = LAYOUT_ansi_82(
         KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,     KC_F12,   KC_DEL,             KC_INS,
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
@@ -56,7 +56,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
         KC_LCTL,  KC_LWIN,  KC_LALT,                                            KC_SPC,                                 KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
-    /* WIN_FN: Prawy srodkowy przycisk to TOGGLE_MOUSE */
+    /* WIN_FN: Prawy srodkowy przycisk (Home) to teraz TOGGLE_MOUSE */
     [WIN_FN] = LAYOUT_ansi_82(
         _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FLXP,  RM_VALD,  RM_VALU,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,    KC_VOLU,  _______,            _______,
         _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
@@ -68,26 +68,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        // 1. Obsluga przelacznika (Fn + Home)
+        // 1. Obsluga wlacznika (Fn + Home)
         case TOGGLE_MOUSE:
             if (record->event.pressed) {
-                mouse_mode_active = !mouse_mode_active; // Zmien stan
+                mouse_mode_active = !mouse_mode_active; // Zmien stan na przeciwny
             }
             return false;
 
         // 2. Obsluga klawisza F
         case KC_F:
-            // Sprawdzamy czy tryb jest wlaczony
+            // Jesli tryb jest aktywny:
             if (mouse_mode_active) {
                 if (record->event.pressed) {
-                    tap_code(KC_F);             // Kliknij F
-                    register_code(KC_MS_BTN1);  // Trzymaj Mysz
+                    tap_code(KC_F);           // Kliknij raz litere F
+                    register_code(KC_BTN1);   // Wcisnij i trzymaj Lewy Przycisk Myszy (POPRAWIONE)
                 } else {
-                    unregister_code(KC_MS_BTN1); // Pusc Mysz
+                    unregister_code(KC_BTN1); // Pusc Lewy Przycisk Myszy (POPRAWIONE)
                 }
-                return false; // Zastepujemy standardowe F
+                return false; // Zastepujemy standardowe dzialanie klawisza F
             }
-            // Jesli tryb jest WYLACZONY, nic nie robimy
+            // Jesli tryb jest wylaczony, kod idzie dalej i F dziala normalnie
             return true;
             
         default:
